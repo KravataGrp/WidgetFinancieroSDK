@@ -1,0 +1,9 @@
+{
+    "name": "SdkKravata",
+    "displayName": "SDK Kravata",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "experiments": {
+        "typedRoutes": true
+    }
+}
