@@ -1,1 +1,1 @@
-# WidgetFinancieroSDK
+SDKKravata
