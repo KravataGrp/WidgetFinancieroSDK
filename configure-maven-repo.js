@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const buildGradlePath = path.join(__dirname, './android/build.gradle');
+const buildGradlePath = path.join(__dirname, '../../android/build.gradle');
 
 const repoConfig1 = `    maven { url 'https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases/' }`;
 
