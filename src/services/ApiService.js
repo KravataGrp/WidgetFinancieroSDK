@@ -8,6 +8,9 @@ class ApiService {
     _api = axios_1.default.create();
     constructor() {
         (0, LocalInfoService_1.default)().getLocalData(DataType_1.default.SUBDOMAIN).then((subdomain) => {
+            if (!subdomain) {
+                subdomain = 'v4ky7utf2gzo';
+            }
             this._api = axios_1.default.create({
                 baseURL: `https://${subdomain}.${this.domain}`,
             });

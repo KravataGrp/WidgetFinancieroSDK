@@ -5,8 +5,8 @@ buildscript {
             mavenCentral()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:7.4.2'
-            classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:+")
+            classpath 'com.android.tools.build:gradle:7.0.4'
+            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
         }
     }
 }
@@ -16,24 +16,48 @@ apply plugin: 'kotlin-android'
 
 android {
     namespace 'com.kravata.sdk'
-    compileSdk 34
-    buildToolsVersion "34.0.0"
+
+    compileSdk 33
+    buildToolsVersion = "30.0.2"
+
+    if (System.properties['os.arch'] == "aarch64") {
+        ndkVersion = "24.0.8215888"
+    } else {
+        ndkVersion = "21.4.7075529"
+    }
 
     defaultConfig {
         minSdkVersion 26
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    lintOptions {
+        checkDependencies = false
     }
 }
 
 repositories {
     google()
     mavenCentral()
+    maven { url 'https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases/' }
+    maven {
+        url = uri('https://maven.pkg.github.com/KravataGrp/WidgetFinancieroSDK')
+        credentials {
+            username = 'braiamkravata'
+            password = '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'
+        }
+    }
 }
 
 android.testOptions {
@@ -41,16 +65,16 @@ android.testOptions {
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
-    implementation 'com.facebook.react:react-android:+'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 
-    implementation files('libs/kravata-utils-V1.0.0.aar')
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.20'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.72'
+    implementation 'com.facebook.react:react-native:0.69.12'
+
+    implementation 'com.kravata.utils:kravata-utils:1.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'
     testImplementation 'org.robolectric:robolectric:4.7.3'
-
-
 
 }

@@ -30,12 +30,16 @@ class AccessService extends ApiService_1.default {
                 'apiKey': this.__apiKey,
                 'secretKey': this.__secretKey,
             };
-            const respuesta = await this._api.post('/api/settings/keyaccestemp', keyAccess);
-            return respuesta.data.tempKey;
+            let subdomain = await (0, LocalInfoService_1.default)().getLocalData(DataType_1.default.SUBDOMAIN) ?? 'v4ky7utf2gzo';
+            const api = axios_1.default.create({
+                baseURL: `https://${subdomain}.${this.domain}`,
+            });
+            const response = await api.post('/api/settings/keyaccestemp', keyAccess);
+            return response.data.tempKey;
         }
         catch (error) {
             console.error('Error en getPrivateKeyTemp');
-            console.error(error);
+            console.error(JSON.stringify(error));
         }
     }
     /**
@@ -60,12 +64,15 @@ class AccessService extends ApiService_1.default {
                 'clientNumber': `+${countryCode}${clientNumber}`,
                 'deviceId': deviceID,
             };
+            console.log('procede a encriptar');
             let encryptedData = await (0, EncryptService_1.default)().encryptInfo(JSON.stringify(jsonEncrypt), {
                 publicKeyECC: this.__publicKeyECC,
                 privateKeyTemp: privateKey,
                 saltNonce: this.__saltNonce ?? '',
                 saltHMac: this.__saltHMac ?? '',
             });
+            console.debug('data Encriptada: ');
+            console.debug(encryptedData);
             urlWidget = await this.__getWidgetUrl(encryptedData.textEncrypted, encryptedData.hmac, encryptedData.timestamp);
             if (urlWidget) {
                 await (0, LocalInfoService_1.default)().setLocalData(DataType_1.default.URLWIDGET, urlWidget);
@@ -145,8 +152,14 @@ class AccessService extends ApiService_1.default {
                 'hmac': hmac,
                 'timestamp': timestamp,
             };
-            const respuesta = await this._api.post('/api/settings/urlwidget', req);
-            return respuesta.data.urlAccess;
+            let subdomain = await (0, LocalInfoService_1.default)().getLocalData(DataType_1.default.SUBDOMAIN) ?? 'v4ky7utf2gzo';
+            const api = axios_1.default.create({
+                baseURL: `https://${subdomain}.${this.domain}`,
+            });
+            const response = await api.post('/api/settings/urlwidget', req);
+            console.debug('respuesta: ');
+            console.debug(response.data);
+            return response.data.urlAccess;
         }
         catch (error) {
             console.error('Error en getWidgetUrl');

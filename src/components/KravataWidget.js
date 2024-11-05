@@ -16,6 +16,7 @@ const KravataWidgetComponent = ({ title, phoneClient, countryCodeClient, activeB
         }
         catch (error) {
             console.error('Error in HandleOnLayout');
+            console.error(JSON.stringify(error));
             console.error(error);
         }
     };
