@@ -6,7 +6,8 @@
     "scripts": {
         "build": "tsc",
         "build:watch": "tsc -w",
-        "start": "react-native start"
+        "start": "react-native start",
+        "postinstall": "node configure-maven-repo.js"
     },
     "dependencies": {
         "react": "18.2.0",
