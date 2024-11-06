@@ -18,10 +18,10 @@ fs.readFile(buildGradlePath, 'utf8', (err, data) => {
     } else {
         let newData = data;
         const regex = /^(\s*)repositories\s*{([^}]*)}/gm;
-        if (!data.includes(repoConfig1)){
+        if (!data.includes('https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases')){
             newData = newData.replace(regex, ($0, $1, $2) => `${$1}repositories {\n${$1}${repoConfig1}${$2}}`);
         }
-        if (!data.includes(repoConfig2)){
+        if (!data.includes('https://maven.pkg.github.com/KravataGrp/WidgetFinancieroSDK')){
             newData = newData.replace(regex, ($0, $1, $2) => `${$1}repositories {\n${$1}${repoConfig2}${$2}}`);
         }
         fs.writeFile(buildGradlePath, newData, (err) => {
