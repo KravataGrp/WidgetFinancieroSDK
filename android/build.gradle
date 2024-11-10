@@ -78,13 +78,6 @@ android.testOptions {
     unitTests.includeAndroidResources = true
 }
 
-project.ext.vectoricons = [
-    iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Specify font files
-]
-
-apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
-
-
 dependencies {
 
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.20'
