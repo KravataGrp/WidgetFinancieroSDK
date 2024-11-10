@@ -1,6 +1,16 @@
 buildscript {
     if (project == rootProject) {
         repositories {
+
+            maven {
+        url = uri('https://maven.pkg.github.com/KravataGrp/WidgetFinancieroSDK')
+        credentials {
+            username = 'braiamkravata'
+            password = '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'
+        }
+    }
+
+            maven { url 'https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases/' }
             google()
             mavenCentral()
         }
@@ -48,21 +58,32 @@ android {
 }
 
 repositories {
-    google()
-    mavenCentral()
-    maven { url 'https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases/' }
+
+
     maven {
         url = uri('https://maven.pkg.github.com/KravataGrp/WidgetFinancieroSDK')
         credentials {
             username = 'braiamkravata'
-            password = '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'
+            password = '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'
         }
     }
+
+
+    maven { url 'https://raw.githubusercontent.com/jitsi/jitsi-maven-repository/master/releases/' }
+    google()
+    mavenCentral()
 }
 
 android.testOptions {
     unitTests.includeAndroidResources = true
 }
+
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf' ] // Specify font files
+]
+
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
+
 
 dependencies {
 
@@ -71,7 +92,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk18on:1.72'
     implementation 'com.facebook.react:react-native:0.69.12'
 
-    implementation 'com.kravata.utils:kravata-utils:1.0.0'
+    implementation 'com.kravata.utils:kravata-utils:1.0.1'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'

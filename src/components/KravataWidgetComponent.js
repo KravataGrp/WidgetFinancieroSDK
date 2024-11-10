@@ -35,12 +35,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const React = __importStar(require("react"));
-const react_1 = require("react");
+exports.KravataWidgetComponent = void 0;
+const react_1 = __importStar(require("react"));
 const react_native_1 = require("react-native");
-const KrWebViewComponent_1 = __importDefault(require("./KrWebViewComponent"));
+const KrWebViewComponent_1 = require("./KrWebViewComponent");
 const AccessService_1 = __importDefault(require("../services/AccessService"));
-const KravataWidgetComponent = ({ title, phoneClient, countryCodeClient, activeBiometric }) => {
+const KravataWidgetComponent = ({ title, phoneClient, countryCodeClient, activeBiometric, showBackButton }) => {
     const [url, setUrl] = (0, react_1.useState)('');
     const handleOnLayout = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -55,7 +55,7 @@ const KravataWidgetComponent = ({ title, phoneClient, countryCodeClient, activeB
     });
     return (<react_native_1.View onLayout={handleOnLayout}>
             <react_native_1.Text>{title}</react_native_1.Text>
-            {url && <KrWebViewComponent_1.default url={url} activeBiometric={activeBiometric}/>}
+            {url && <KrWebViewComponent_1.KrWebViewComponent url={url} activeBiometric={activeBiometric} showBackButton={showBackButton}/>}
         </react_native_1.View>);
 };
-exports.default = KravataWidgetComponent;
+exports.KravataWidgetComponent = KravataWidgetComponent;

@@ -48,5 +48,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSMessagesUsageDescription</key>
+	<string>Tu aplicación necesita acceso a la API de Mensajes para enviar y recibir mensajes.</string>
 </dict>
 </plist>

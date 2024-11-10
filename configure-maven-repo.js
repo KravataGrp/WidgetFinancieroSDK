@@ -8,7 +8,7 @@ const repoConfig2 = `    maven {
         url = uri('https://maven.pkg.github.com/KravataGrp/WidgetFinancieroSDK')
         credentials {
             username = 'braiamkravata'
-            password = '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'
+            password = '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'
         }
     }`;
 

@@ -35,24 +35,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const React = __importStar(require("react"));
-const react_1 = require("react");
+exports.KrWebViewComponent = void 0;
+const react_1 = __importStar(require("react"));
 const react_native_1 = require("react-native");
 const react_native_webview_1 = __importDefault(require("react-native-webview"));
+const FontAwesome_1 = __importDefault(require("react-native-vector-icons/FontAwesome"));
 const react_native_fingerprint_scanner_1 = __importDefault(require("react-native-fingerprint-scanner"));
 const LocalInfoService_1 = __importDefault(require("../services/LocalInfoService"));
 const DataType_1 = __importDefault(require("../models/enums/DataType"));
 const token_1 = require("../helpers/token");
 const AccessService_1 = __importDefault(require("../services/AccessService"));
-const KrWebViewComponent = ({ url, activeBiometric }) => {
-    //TODO> Implementar logica para
-    //* Escuchar los mensajes de texto
-    //* Guardar el refreshKey en KeyChain para usarlo cuando se cargue de nuevo la pagina
-    const webviewRef = React.createRef();
+const KrWebViewComponent = ({ url, activeBiometric, showBackButton }) => {
+    const webviewRef = react_1.default.createRef();
     const [userId, setUserId] = (0, react_1.useState)('d12495f9-b91a-474f-83a1-6069b428a2b8');
-    const [otpCode, setOtpCode] = (0, react_1.useState)('569346');
+    const [otpCode, setOtpCode] = (0, react_1.useState)('');
     const [tokens, setTokens] = (0, react_1.useState)(null);
     const [isStarted, setIsStarted] = (0, react_1.useState)(false);
+    const [receiveSmsPermission, setReceiveSmsPermission] = (0, react_1.useState)('');
     console.debug('se cargo la pagina');
     const requiresLegacyAuthentication = (() => {
         return parseInt(react_native_1.Platform.Version.toString()) < 23;
@@ -123,18 +122,50 @@ const KrWebViewComponent = ({ url, activeBiometric }) => {
             webviewRef.current.injectJavaScript(jsCode);
         }
     }));
+    const requestSmsPermission = () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            console.debug("Va a requerir el permiso");
+            const permission = yield react_native_1.PermissionsAndroid.request(react_native_1.PermissionsAndroid.PERMISSIONS.RECEIVE_SMS);
+            setReceiveSmsPermission(permission);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
     (0, react_1.useEffect)(() => {
+        requestSmsPermission();
+    }, []);
+    (0, react_1.useEffect)(() => {
+        if (receiveSmsPermission === react_native_1.PermissionsAndroid.RESULTS.GRANTED) {
+            let subscriber = react_native_1.DeviceEventEmitter.addListener('onSMSReceived', message => {
+                console.log(typeof (message));
+                const res = JSON.parse(message.replace('NativeMap', '"NativeMap"'));
+                const otpRegex = /\d{6}/;
+                const otp = res.NativeMap.messageBody.match(otpRegex);
+                if (otp) {
+                    setOtpCode(otp.toString());
+                }
+            });
+            return () => {
+                subscriber.remove();
+            };
+        }
+    }, [receiveSmsPermission]);
+    console.debug('Va a entrar a OTP Code');
+    if (otpCode) {
+        console.debug('entro a OTP Code');
         const executeAsync = (() => __awaiter(void 0, void 0, void 0, function* () {
-            console.debug('Entro a inyectar verificacion de codigo');
-            //TODO> Montar proceso de obtener codigo OTP desde el SMS.
-            // setTimeout(() =>{ injectCodeVerification(); }, 5000); 
+            if (!(yield (0, LocalInfoService_1.default)().getLocalData(DataType_1.default.APIKEYACCESS))) {
+                console.debug('Entro a inyectar verificacion de codigo');
+                yield injectCodeVerification();
+            }
             if (activeBiometric) {
                 console.debug('activeBiometric es true');
                 let accessToken = yield (0, LocalInfoService_1.default)().getLocalData(DataType_1.default.APIKEYACCESS);
                 console.debug('Obtuvo el accessToken');
                 if (!accessToken && !tokens) {
                     console.log('Va a mirar los localstorage en la pagina');
-                    setTimeout(() => { getTokens(); }, 10000);
+                    setTimeout(() => { getTokens(); }, 5000);
                 }
                 else if (tokens && !isStarted) {
                     if (requiresLegacyAuthentication()) {
@@ -164,56 +195,47 @@ const KrWebViewComponent = ({ url, activeBiometric }) => {
                 }
             }
         }));
-        const injectCodeVerification = () => {
+        const injectCodeVerification = () => __awaiter(void 0, void 0, void 0, function* () {
             console.debug('entro a inyeccion de codigo de acceso');
             const jsCode = `
-          if(document.getElementById("number1")){
-            document.getElementById("number1").value = "${otpCode.toString()[0]}";
-            document.getElementById("number2").value = "${otpCode.toString()[1]}";
-            document.getElementById("number3").value = "${otpCode.toString()[2]}";
-            document.getElementById("number4").value = "${otpCode.toString()[3]}";
-            document.getElementById("number5").value = "${otpCode.toString()[4]}";
-            document.getElementById("number6").value = "${otpCode.toString()[5]}";
-            document.getElementById("number6").dispatchEvent(new Event("keyup"));
-          }
-        `;
+            if(document.getElementById("number1")){
+              document.getElementById("number1").value = "${otpCode.toString()[0]}";
+              document.getElementById("number2").value = "${otpCode.toString()[1]}";
+              document.getElementById("number3").value = "${otpCode.toString()[2]}";
+              document.getElementById("number4").value = "${otpCode.toString()[3]}";
+              document.getElementById("number5").value = "${otpCode.toString()[4]}";
+              document.getElementById("number6").value = "${otpCode.toString()[5]}";
+              document.getElementById("number6").dispatchEvent(new Event("keyup"));
+            }
+          `;
             if (webviewRef.current) {
                 webviewRef.current.injectJavaScript(jsCode);
             }
             console.debug('Finalizo inyection de acceso');
-        };
+            return true;
+        });
         const getTokens = (() => {
             const jsCode = `
-          setTimeout(() => {
-            if(localStorage.getItem('kra_accessToken')){
-                  const datosLocalStorage = JSON.stringify({ 'accessToken': localStorage.getItem('kra_accessToken') });
-                  window.ReactNativeWebView.postMessage(datosLocalStorage);
-            }
-          }, 1000);
-        `;
+            setTimeout(() => {
+              if(localStorage.getItem('kra_accessToken')){
+                    const datosLocalStorage = JSON.stringify({ 'accessToken': localStorage.getItem('kra_accessToken') });
+                    window.ReactNativeWebView.postMessage(datosLocalStorage);
+              }
+            }, 1000);
+          `;
             if (webviewRef.current) {
                 webviewRef.current.injectJavaScript(jsCode);
             }
         });
         executeAsync();
-    });
+    }
     const handleMessage = (event) => {
         console.debug('obtuvo el mensaje respuesta de webView');
         console.debug(event.nativeEvent.data);
         setTokens(JSON.parse(event.nativeEvent.data));
     };
-    const handleOnLayout = () => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            console.debug('Entro a activar mensajes');
-            //TODO> Implementar listener de mensajes SMS
-        }
-        catch (error) {
-            console.error("error en flujo");
-            console.error(error);
-        }
-    });
     const handlePress = () => {
-        if (react_native_1.Platform.OS === 'android') {
+        if (react_native_1.Platform.OS.toLowerCase() == 'android') {
             react_native_1.BackHandler.exitApp();
         }
         else {
@@ -221,11 +243,12 @@ const KrWebViewComponent = ({ url, activeBiometric }) => {
         }
     };
     console.debug('url es: ' + url);
-    return (<react_native_1.View onLayout={handleOnLayout}>
-        <react_native_1.TouchableOpacity onPress={handlePress}>
-          <react_native_1.Text>Regresar</react_native_1.Text>
-        </react_native_1.TouchableOpacity>
+    return (<react_native_1.View>
+        {showBackButton &&
+            <react_native_1.TouchableOpacity onPress={handlePress}>
+          <FontAwesome_1.default name="chevron-left" size={20} color="#4F8EF7"/>
+        </react_native_1.TouchableOpacity>}
         <react_native_webview_1.default ref={webviewRef} source={{ uri: url }} style={{ width: '100%', height: 800 }} javaScriptEnabled={true} domStorageEnabled={true} startInLoadingState={true} onMessage={handleMessage}/>
       </react_native_1.View>);
 };
-exports.default = KrWebViewComponent;
+exports.KrWebViewComponent = KrWebViewComponent;
