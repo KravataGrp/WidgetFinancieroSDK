@@ -35,8 +35,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KrWebViewComponent = void 0;
-const react_1 = __importStar(require("react"));
+const React = __importStar(require("react"));
+const react_1 = require("react");
 const react_native_1 = require("react-native");
 const react_native_webview_1 = __importDefault(require("react-native-webview"));
 const FontAwesome_1 = __importDefault(require("react-native-vector-icons/FontAwesome"));
@@ -46,7 +46,7 @@ const DataType_1 = __importDefault(require("../models/enums/DataType"));
 const token_1 = require("../helpers/token");
 const AccessService_1 = __importDefault(require("../services/AccessService"));
 const KrWebViewComponent = ({ url, activeBiometric, showBackButton }) => {
-    const webviewRef = react_1.default.createRef();
+    const webviewRef = React.createRef();
     const [userId, setUserId] = (0, react_1.useState)('d12495f9-b91a-474f-83a1-6069b428a2b8');
     const [otpCode, setOtpCode] = (0, react_1.useState)('');
     const [tokens, setTokens] = (0, react_1.useState)(null);
@@ -110,7 +110,7 @@ const KrWebViewComponent = ({ url, activeBiometric, showBackButton }) => {
         let dateNow = new Date();
         dateNow.setSeconds(dateNow.getSeconds() + parseInt(expiredToken));
         dateNow = dateNow.getTime().toString();
-        console.debug('Va a intectar el codigo');
+        console.debug('Va a intectar el codigo de acceso biometrico');
         const jsCode = `
         setTimeout(() => {
           localStorage.setItem("kra_accessToken", "${accessToken}");
@@ -251,4 +251,4 @@ const KrWebViewComponent = ({ url, activeBiometric, showBackButton }) => {
         <react_native_webview_1.default ref={webviewRef} source={{ uri: url }} style={{ width: '100%', height: 800 }} javaScriptEnabled={true} domStorageEnabled={true} startInLoadingState={true} onMessage={handleMessage}/>
       </react_native_1.View>);
 };
-exports.KrWebViewComponent = KrWebViewComponent;
+exports.default = KrWebViewComponent;
