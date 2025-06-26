@@ -1,0 +1,3 @@
+rootProject.name = 'kravata_sdk_plugin'
+
+include(":kravata-utils")
