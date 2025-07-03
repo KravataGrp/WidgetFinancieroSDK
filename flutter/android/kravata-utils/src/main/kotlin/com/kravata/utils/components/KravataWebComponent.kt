@@ -5,10 +5,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.google.android.gms.auth.api.phone.SmsRetriever
@@ -86,9 +89,20 @@ class KravataWebComponent(
         println("Inicio el setupWebView: $url")
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
+        webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.addJavascriptInterface(JSBridge(), "KravataNative")
         WebView.setWebContentsDebuggingEnabled(true)
         webView.webViewClient = object : WebViewClient() {
+
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                return false // deja que el WebView maneje la carga
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                Log.d("WebView", "Cargando: $url")
+            }
+
 
             override fun shouldInterceptRequest(
                 view: WebView?,
@@ -98,27 +112,33 @@ class KravataWebComponent(
                 return super.shouldInterceptRequest(view, request)
             }
 
-            override fun onReceivedHttpError(
-                view: WebView,
-                request: WebResourceRequest,
-                errorResponse: WebResourceResponse
-            ) {
-                Log.e("WebViewHttpError", "Error en ${request.url} - code: ${errorResponse.statusCode}")
-
-                // Leer contenido si es un JSON
-                if (errorResponse.mimeType?.contains("json") == true) {
-                    try {
-                        val json = errorResponse.data.bufferedReader().use { it.readText() }
-                        Log.e("WebViewHttpError", "Response body: $json")
-                    } catch (e: Exception) {
-                        Log.e("WebViewHttpError", "No se pudo leer el body del error", e)
-                    }
-                }
-            }
+//            override fun onReceivedHttpError(
+//                view: WebView,
+//                request: WebResourceRequest,
+//                errorResponse: WebResourceResponse
+//            ) {
+//                Log.e("WebViewHttpError", "Error en ${request.url} - code: ${errorResponse.statusCode}")
+//
+//                // Solo intenta leer si hay contenido
+//                if (errorResponse.mimeType?.contains("json") == true && errorResponse.data != null) {
+//                    try {
+//                        val json = errorResponse.data.bufferedReader().use { it.readText() }
+//                        Log.e("WebViewHttpError", "Response body: $json")
+//                    } catch (e: Exception) {
+//                        Log.e("WebViewHttpError", "No se pudo leer el body del error", e)
+//                    }
+//                } else {
+//                    Log.e("WebViewHttpError", "Sin body de error disponible")
+//                }
+//            }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 injectTokens()
                 onLoaded?.invoke()
+            }
+
+            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                Log.e("WebViewError", "Error ${error.errorCode}: ${error.description}")
             }
         }
         if(!url.isNullOrBlank()){
@@ -130,9 +150,6 @@ class KravataWebComponent(
         val deviceId = apikravataService.getDeviceId()
         val js = """
             setTimeout(() => {
-              localStorage.setItem("kra_accessToken", "ACCESS_TOKEN");
-              localStorage.setItem("kra_refreshToken", "REFRESH_TOKEN");
-              localStorage.setItem("kra_expireDate", "${System.currentTimeMillis() + 3600000}");
               localStorage.setItem("X-Device-ID", "$deviceId");
               window.KravataNative.onDataReady("Inyectado");
             }, 1000);
