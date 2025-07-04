@@ -1,5 +1,5 @@
 group = "com.widget.kravata_sdk_plugin"
-version = "1.0-SNAPSHOT"
+version = "1.0.1"
 
 buildscript {
     ext.kotlin_version = "2.1.0"
@@ -48,6 +48,12 @@ android {
     }
 
     dependencies {
+
+        //Activar solo si es desarrollo
+        //     implementation project(':kravata-utils')
+
+        implementation('com.kravata:kravata-utils:2.0.0')
+
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
         implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
@@ -67,10 +73,6 @@ android {
         }
     }
     ndkVersion '27.0.12077973'
-
-    dependencies {
-        implementation project(':kravata-utils')
-    }
 }
 
 dependencies {

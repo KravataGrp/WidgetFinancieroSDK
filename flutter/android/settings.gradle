@@ -1,3 +1,4 @@
 rootProject.name = 'kravata_sdk_plugin'
 
-include(":kravata-utils")
+//Activar solo en desarrollo
+// include(":kravata-utils")
